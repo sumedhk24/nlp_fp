@@ -3,19 +3,6 @@ import random
 import copy
 
 
-cube=Cube(verbose=True)
-cube.load("en")
-
-text="Is the headquarters of the Congregation of the Holy Cross?"
-
-document=cube(text)
-
-print(document.sentences)
-# print(document.sentences[0].words)
-# print(document.sentences[0].words[0].upos)
-
-
-
 def modify_data(data_dict, include_adversarial, include_contrast, include_negation):
 
     # Initialize the parser
