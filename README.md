@@ -1,4 +1,4 @@
-# Final Project for NLP: CS 378
+# Evaluating ELECTRA-small Model on Adversarial, Contrast, and Negation Data Sets
 
 Names: Sumedh Kandadai and Tejna Dasari
 

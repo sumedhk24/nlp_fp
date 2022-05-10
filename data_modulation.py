@@ -50,11 +50,15 @@ def modify_data(data_dict, include_adversarial, include_contrast, include_negati
         # Get random prep phrase
         second_prep_phrase = get_tag(parsed, 'ADP')
         
-        # Modify question
-        a_question = example['question'][0:-1] + first_prep_phrase + second_prep_phrase + '?'
-        example['question'] = a_question
-        # Answer will be N/A
-        example['answers'] = None
+        # Get a random sentence to add to passage with the prepositional phrases from above
+        rand_sentence = sentences[random.randint(0, num_sentences - 1)]
+        # Removing last punctuation
+        rand_sentence = rand_sentence[:-1] + ' ' + first_prep_phrase + ' ' + second_prep_phrase + '.' 
+
+        # Modify passage
+        passage = example['context'] + ' ' + rand_sentence
+        example['context'] = passage
+        # Answer will be the same
 
     # Modifying to contrast data
     for example in contrast:
@@ -68,16 +72,39 @@ def modify_data(data_dict, include_adversarial, include_contrast, include_negati
         sentences = example['context'].split('.')
 
         # Find all prep phrases with the noun in it
+        # For right answer
         prep_phrase = ''
+        sentence_counter = 0
         for sentence in sentences:
             if sentence.index(propn):
+                sentence_counter += 1
                 parsed = cube(sentence)
-                prep_phrase = prep_phrase + ' ' + get_tag(parsed, 'ADP')
+                curr_phrase = get_tag(parsed, 'ADP')
+                if curr_phrase not in example['question']:
+                    prep_phrase = prep_phrase + ' ' + curr_phrase
+
+        # Find the index of root
+        root = ''
+        parsed = cube(question)
+        for pos in parsed.sentences[0].words:
+            if str(pos.label) == 'root':
+                root = pos.word
+
+        # Will always exist
+        root_index = question.find(root)
 
         # Modify the question
-        c_question = example['question'][0:-1] + prep_phrase + '?'
+        c_question = example['question'][:root_index] + prep_phrase + example['question'][root_index:-1] + '?'
         example['question'] = c_question
-        # Answer will remain same, even with extra qualifiers
+        # Answer will change if too many prepositional phrases are added
+        if sentence_counter > 2:
+            answer = example['answers']['text'].lower()
+            if answer == 'yes':
+                answer = 'no'
+            else:
+                answer = None
+            example['answers']['text'] = answer
+            
 
     for example in negation:
         question = example['question']
