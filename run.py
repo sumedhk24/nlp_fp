@@ -5,6 +5,7 @@ from helpers import prepare_dataset_nli, prepare_train_dataset_qa, \
     prepare_validation_dataset_qa, QuestionAnsweringTrainer, compute_accuracy
 import os
 import json
+import data_modulation
 
 NUM_PREPROCESSING_WORKERS = 2
 
@@ -100,6 +101,9 @@ def main():
     eval_dataset_featurized = None
     if training_args.do_train:
         train_dataset = dataset['train']
+        # Modify the training data set
+        # train_dataset = data_modulation.modify_data(train_dataset, True, True, True)
+
         if args.max_train_samples:
             train_dataset = train_dataset.select(range(args.max_train_samples))
         train_dataset_featurized = train_dataset.map(
@@ -110,6 +114,9 @@ def main():
         )
     if training_args.do_eval:
         eval_dataset = dataset[eval_split]
+        # Modify eval dataset
+        # Probably not necessary
+        # eval_dataset = data_modulation.modify_data(train_dataset, True, True, True)
         if args.max_eval_samples:
             eval_dataset = eval_dataset.select(range(args.max_eval_samples))
         eval_dataset_featurized = eval_dataset.map(
